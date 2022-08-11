@@ -3,17 +3,19 @@ from urllib.error import HTTPError
 import warnings
 
 import pandas as pd
-from rpy2.robjects import r, pandas2ri
+import pyreadr
+from pyreadr import read_r
 
 
 def _download_and_import_RData_file(url):
     filename, headers = urlretrieve(url)
 
     # Load the RData file into R and get the name of the new variable created
-    r_obj_name = r.load(filename)[0]
+    r_obj_name = pyreadr.read_r(filename)
 
-    # Load that variable and convert to a pandas DataFrame
-    df = pandas2ri.ri2py(r[r_obj_name])
+    data = r_obj_name[list(r_obj_name)[0]]# let's check what objects we got
+
+    df = pd.DataFrame(data)
 
     return df
 
@@ -61,3 +63,8 @@ def importMetadata():
     df = df.drop_duplicates(subset=['site_id'])
     
     return df
+
+
+url = f"https://uk-air.defra.gov.uk/openair/R_data/MY1_2019.RData"
+
+_download_and_import_RData_file(url)
