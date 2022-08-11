@@ -4,13 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyaurn"
-version = "0.0.2"
+version = "0.0.3"
 authors = [
   { name="Anthony Walker", email="walker.anthony91@gmail.com" },{ name="Robin Wilson", email="robin@rtwilson.com" }
 ]
 description = "Package to import AURN air quality data from DEFRA UK AIR site"
 readme = "README.md"
-license = "MIT"
 requires-python = ">=3.7"
 classifiers = [
     "Programming Language :: Python :: 3",

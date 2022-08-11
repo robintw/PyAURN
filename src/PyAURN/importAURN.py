@@ -1,7 +1,6 @@
 from urllib.request import urlretrieve
 from urllib.error import HTTPError
 import warnings
-
 import pandas as pd
 import pyreadr
 from pyreadr import read_r
@@ -15,6 +14,7 @@ def _download_and_import_RData_file(url):
 
     data = r_obj_name[list(r_obj_name)[0]]# let's check what objects we got
 
+    # create the dataframe
     df = pd.DataFrame(data)
 
     return df
@@ -63,8 +63,3 @@ def importMetadata():
     df = df.drop_duplicates(subset=['site_id'])
     
     return df
-
-
-url = f"https://uk-air.defra.gov.uk/openair/R_data/MY1_2019.RData"
-
-_download_and_import_RData_file(url)
