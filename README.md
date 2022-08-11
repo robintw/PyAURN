@@ -18,7 +18,7 @@ Install the via pip:
 Run the two functions in the package as below:
 
 ```python
-from importAURN import importAURN, importMetadata
+from pyaurn import importAURN, importMetadata
 
 # Download metadata of site IDs, names, locations etc
 metadata = importMetadata()
