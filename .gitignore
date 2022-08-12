@@ -1,4 +1,6 @@
 _archive_dists
+build/lib
+build
 dist
 tests
 src/pyaurn.egg-info
