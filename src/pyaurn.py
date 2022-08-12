@@ -3,7 +3,6 @@ from urllib.error import HTTPError
 import warnings
 import pandas as pd
 import pyreadr
-from pyreadr import read_r
 
 
 def _download_and_import_RData_file(url):
