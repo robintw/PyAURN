@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0","pyreadr>=0.4.6","pandas"]
+requires = ["setuptools>=61.0","pyreadr","pandas","tqdm"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyaurn"
-version = "0.0.5"
+version = "0.0.6"
 authors = [
   { name="Anthony Walker", email="walker.anthony91@gmail.com" },{ name="Robin Wilson", email="robin@rtwilson.com" }
 ]
