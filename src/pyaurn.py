@@ -3,7 +3,6 @@ from urllib.error import HTTPError
 import warnings
 import pandas as pd
 import pyreadr
-import progress
 from tqdm import tqdm
 
 def my_hook(t):
