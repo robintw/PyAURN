@@ -1,6 +1,6 @@
 # PyAURN - [![latest-version](https://img.shields.io/pypi/v/pyaurn)](https://pypi.org/project/pyaurn)
 
-This is a reworked fork of the `robintw/PyAURN` utilising pyreadr instead of rpy2. This negates having a local installation of R, and therefore can remain a python only configuration. 
+This is a rework of the original function, utilising pyreadr instead of rpy2. This negates having a local installation of R, and therefore can remain a python only configuration. 
 
 This is a simple Python package to import data from the UK Automatic Urban Rural Network - an air pollution network run by the UK government.
 
