@@ -117,7 +117,7 @@ def importMeta():
 
     df = df.drop_duplicates(subset=['site_id'])
     
-    return 
+    return df
 
 def timeAverage(df,avg_time="daily",statistic="mean"):
     """
@@ -171,4 +171,3 @@ def timeAverage(df,avg_time="daily",statistic="mean"):
         if statistic=="sum":
             time_df = df.groupby(pd.Grouper(freq='Y')).sum()
     return time_df
-
