@@ -14,21 +14,24 @@ Install the via pip:
 `pip install pyaurn`
   
   
-Run the two functions in the package as below:
+Example quickstart functions in the package as below:
 
 ```python
-from pyaurn import importAURN, importMetadata
+from pyaurn import importAURN, importMeta, timeAverage
 
 # Download metadata of site IDs, names, locations etc
-metadata = importMetadata()
+metadata = importMeta()
 
 # Download 4 years of data for the Marylebone Road site
 # (MY1 is the site ID for this site)
 # Note: range(2016, 2022) will produce a list of six years: 2016, 2017, 2018, 2019, 2020, and 2021. Alternatively define a list of years to use eg. [2016,2017,2018,2019,2020,2021]
 data = importAURN("MY1", range(2016, 2022))
+
+# Group the DataFrame by a frequency of monthly, and the statistic mean(). 
+data_monthly = timeAverage(data,avg_time="month",statistic="mean")
 ```
 
 ## Future developments
 
 * integrate other openair functions
-* open to suggestions 
+* open to suggestions (please leave enhancement tag in [Issues](https://www.github.com/robintw/PyAURN/issues))
