@@ -26,13 +26,10 @@ def my_hook(t):
 
     return update_to
 
-
-
 def _download_and_import_RData_file(url,year,site):
     with tqdm(unit = 'B', unit_scale = True, unit_divisor = 1024, miniters = 1, desc = f"Downloading {site} {year} data:") as t:
         filename, headers = urlretrieve(url, reporthook = my_hook(t))
     
-
     # Load the RData file into R and get the name of the new variable created
     r_obj_name = pyreadr.read_r(filename)
 
@@ -80,8 +77,8 @@ def importAURN(site, years):
 
     return final_dataframe
 
-
-def importMetadata():
+# need to rework _download function for year and site naming 
+def importMeta():
     df = _download_and_import_RData_file("http://uk-air.defra.gov.uk/openair/R_data/AURN_metadata.RData")
 
     df = df.drop_duplicates(subset=['site_id'])
