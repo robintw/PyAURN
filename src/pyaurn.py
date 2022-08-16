@@ -136,38 +136,9 @@ def timeAverage(df,avg_time="daily",statistic="mean"):
         returns a pandas.DataFrame time averaged to specified frequency & statistic.
     """
     if avg_time == "daily":
-        if statistic=="mean":
-            time_df = df.groupby(pd.Grouper(freq='D')).mean()
-        if statistic=="max":
-            time_df = df.groupby(pd.Grouper(freq='D')).max()
-        if statistic=="min":
-            time_df = df.groupby(pd.Grouper(freq='D')).min()
-        if statistic=="median":
-            time_df = df.groupby(pd.Grouper(freq='D')).median()
-        if statistic=="sum":
-            time_df = df.groupby(pd.Grouper(freq='D')).sum()
-                
+        time_df = df.groupby(pd.Grouper(freq='D')).agg(statistic)
     elif avg_time == "month":
-        if statistic=="mean":
-            time_df = df.groupby(pd.Grouper(freq='M')).mean()
-        if statistic=="max":
-            time_df = df.groupby(pd.Grouper(freq='M')).max()
-        if statistic=="min":
-            time_df = df.groupby(pd.Grouper(freq='M')).min()
-        if statistic=="median":
-            time_df = df.groupby(pd.Grouper(freq='M')).median()
-        if statistic=="sum":
-            time_df = df.groupby(pd.Grouper(freq='M')).sum()
-    
+        time_df = df.groupby(pd.Grouper(freq='M')).agg(statistic)
     elif avg_time == "year":
-        if statistic=="mean":
-            time_df = df.groupby(pd.Grouper(freq='Y')).mean()
-        if statistic=="max":
-            time_df = df.groupby(pd.Grouper(freq='Y')).max()
-        if statistic=="min":
-            time_df = df.groupby(pd.Grouper(freq='Y')).min()
-        if statistic=="median":
-            time_df = df.groupby(pd.Grouper(freq='Y')).median()
-        if statistic=="sum":
-            time_df = df.groupby(pd.Grouper(freq='Y')).sum()
+        time_df = df.groupby(pd.Grouper(freq='Y')).agg(statistic)
     return time_df
