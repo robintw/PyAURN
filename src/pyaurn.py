@@ -4,8 +4,9 @@ import warnings
 import pandas as pd
 import pyreadr
 from tqdm import tqdm
+import ssl
 
-def _my_hook(t):
+def __my_hook(t):
     """Wraps tqdm instance
     """
     last_b = [0]
@@ -30,13 +31,15 @@ def _download_and_import_RData_file(url,**kwargs):
     site = kwargs.get('site', None)
     year = kwargs.get('year', None)
 
+    ## fix for ssl certificate error: likely needs better solution, but works for now as calling trusted urls
+    ssl._create_default_https_context = ssl._create_unverified_context
     if site is None:
         with tqdm(unit = 'B', unit_scale = True, unit_divisor = 1024, miniters = 1, desc = f"Downloading meta data:") as t:
-            filename, headers = urlretrieve(url, reporthook = _my_hook(t))
+            filename, headers = urlretrieve(url, reporthook = __my_hook(t))
 
     elif site is not None:
         with tqdm(unit = 'B', unit_scale = True, unit_divisor = 1024, miniters = 1, desc = f"Downloading data {site} {year}:") as t:
-            filename, headers = urlretrieve(url, reporthook = _my_hook(t))
+            filename, headers = urlretrieve(url, reporthook = __my_hook(t))
     
     # Load the RData file into R and get the name of the new variable created
     r_obj_name = pyreadr.read_r(filename)
@@ -100,24 +103,94 @@ def importAURN(site, years):
 
     return final_dataframe
 
-def importMeta():
+def importMeta(source="aurn"):
     """
-    Function to import a DataFrame of meta information for all the available to download AURN sites from the UK-AIR database.
+    Function to import a DataFrame of meta information for a selected source of air quality data.
 
     Parameters
     ----------
-    None
+    source : str
+        Source of meta data to download. ["aurn","saqn","aqe","waqn","ni"]. Default is "aurn".
 
     Returns
     ----------
     pandas.DataFrame
         returns a pandas.DataFrame of meta information for all available AURN sites.
     """
-    df = _download_and_import_RData_file("http://uk-air.defra.gov.uk/openair/R_data/AURN_metadata.RData")
+    source_dict = {"aurn":"http://uk-air.defra.gov.uk/openair/R_data/AURN_metadata.RData",
+                   "saqn":"https://www.scottishairquality.scot/openair/R_data/SCOT_metadata.RData",
+                   "aqe":"https://airqualityengland.co.uk/assets/openair/R_data/AQE_metadata.RData",
+                   "waqn":"https://airquality.gov.wales/sites/default/files/openair/R_data/WAQ_metadata.RData",
+                   "ni":"https://www.airqualityni.co.uk/openair/R_data/NI_metadata.RData"}
+
+    df = _download_and_import_RData_file(source_dict[source])
 
     df = df.drop_duplicates(subset=['site_id'])
     
     return df
+
+def importUKAQ(site, years,source="aurn"):
+
+    """
+    Function to import a specific site data across selected years, from a number of different sources across the UK. 
+    Provide a site code (see importMeta for dataframe of sites) as a string, a year or list of years, and also the source.
+
+    Parameters
+    ----------
+    site : str
+        Site ID of the station e.g. "MY1"
+    years : list of int
+        list of years of data to download. 
+    source : str
+        Source of data to download. ["aurn","saqn","aqe","waqn","ni"]. Default is "aurn".
+
+    Returns
+    ----------
+    pandas.DataFrame
+        returns a pandas.DataFrame of the site data for selected years.
+    """
+    site = site.upper()
+
+    # If a single year is passed then convert to a list with a single value
+    if type(years) is int:
+        years = [years]
+
+    downloaded_data = []
+    errors_raised = False
+
+    source_dict = {"aurn":"https://uk-air.defra.gov.uk/openair/R_data/",
+                   "saqn":"https://www.scottishairquality.scot/openair/R_data/",
+                   "aqe":"https://airqualityengland.co.uk/assets/openair/R_data/",
+                   "waqn":"https://airquality.gov.wales/sites/default/files/openair/R_data/",
+                   "ni":"https://www.airqualityni.co.uk/openair/R_data/"}
+
+    source_url = source_dict[source]
+
+    for year in years:
+        # Generate correct URL and download to a temporary file
+        url = f"{source_url}{site}_{year}.RData"
+
+        try:
+            df = _download_and_import_RData_file(url,site=site,year=year)
+        except HTTPError:
+            errors_raised = True
+            continue
+
+        df = df.set_index('date')
+
+        downloaded_data.append(df)
+
+    if len(downloaded_data) == 0:
+        final_dataframe = pd.DataFrame()
+    else:
+        final_dataframe = pd.concat(downloaded_data)
+
+    if errors_raised:
+        warnings.warn('Some data files were not able to be downloaded, check resulting DataFrame carefully')
+    if len(final_dataframe) == 0:
+        warnings.warn('Resulting DataFrame is empty')
+
+    return final_dataframe
 
 def timeAverage(df,avg_time="daily",statistic="mean"):
     """

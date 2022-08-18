@@ -4,7 +4,7 @@ This is a rework of the original function, utilising pyreadr instead of rpy2. Th
 
 This is a simple Python package to import data from the UK Automatic Urban Rural Network - an air pollution network run by the UK government.
 
-This is a Python port of a couple of functions of the [openair](http://www.openair-project.org/) R package. This R package
+This is a Python port of a couple of functions of the [openair](https://davidcarslaw.github.io/openair/) R package. This R package
 relies on data provided as a set of .RData files on the Defra website, specifically designed for use by the openair project. This Python
 package relies on the same data. 
 
