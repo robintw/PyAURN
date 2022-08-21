@@ -16,8 +16,8 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["pyreadr","pandas","tqdm"]
+dependencies = ["pyreadr","pandas","tqdm","ssl"]
 
 [project.urls]
-"Homepage" = "https://github.com/airqualityanthony/PyAURN"
-"Bug Tracker" = "https://github.com/airqualityanthony/PyAURN/issues"
+"Homepage" = "https://github.com/robintw/PyAURN"
+"Bug Tracker" = "https://github.com/robintw/PyAURN/issues"

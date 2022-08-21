@@ -2,11 +2,9 @@
 
 This is a rework of the original function, utilising pyreadr instead of rpy2. This negates having a local installation of R, and therefore can remain a python only configuration. 
 
-This is a simple Python package to import data from the UK Automatic Urban Rural Network - an air pollution network run by the UK government.
-
-This is a Python port of a couple of functions of the [openair](https://davidcarslaw.github.io/openair/) R package. This R package
+This is a Python port of functions of the [openair](https://davidcarslaw.github.io/openair/) R package. The openair R package
 relies on data provided as a set of .RData files on the Defra website, specifically designed for use by the openair project. This Python
-package relies on the same data. 
+package relies on the same data, however imports it into a Python friendly pandas dataframe without the need for R.
 
 ## Getting started
 Install the via pip: 
@@ -30,6 +28,15 @@ data = importAURN("MY1", range(2016, 2022))
 # Group the DataFrame by a frequency of monthly, and the statistic mean(). 
 data_monthly = timeAverage(data,avg_time="month",statistic="mean")
 ```
+
+## Current Functions
+The following functions are currently available in the package:
+* importMeta - download meta information on the different sents for specified data source.
+* importAURN - import AURN data for a specified site and year(s).
+* importUKAQ - import UK Air Quality data for a specified site, year(s), and data source.
+* importEurope - import European Air Quality data for a specified site, year(s) - WIP (final dataframe format needs widening to clean pollutants)
+* timeAverage - time average the data to a specified frequency and statistic.
+
 
 ## Future developments
 
