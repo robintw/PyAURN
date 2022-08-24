@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyaurn"
-version = "0.1.0"
+version = "0.1.01"
 authors = [
   { name="Anthony Walker", email="walker.anthony91@gmail.com" },{ name="Robin Wilson", email="robin@rtwilson.com" }
 ]
@@ -16,7 +16,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["pyreadr","pandas","tqdm","ssl"]
+dependencies = ["pyreadr","pandas","tqdm"]
 
 [project.urls]
 "Homepage" = "https://github.com/robintw/PyAURN"
