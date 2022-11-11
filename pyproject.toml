@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyaurn"
-version = "0.0.9"
+version = "0.1.01"
 authors = [
   { name="Anthony Walker", email="walker.anthony91@gmail.com" },{ name="Robin Wilson", email="robin@rtwilson.com" }
 ]
@@ -19,5 +19,5 @@ classifiers = [
 dependencies = ["pyreadr","pandas","tqdm"]
 
 [project.urls]
-"Homepage" = "https://github.com/airqualityanthony/PyAURN"
-"Bug Tracker" = "https://github.com/airqualityanthony/PyAURN/issues"
+"Homepage" = "https://github.com/robintw/PyAURN"
+"Bug Tracker" = "https://github.com/robintw/PyAURN/issues"
