@@ -5,3 +5,5 @@ dist
 tests
 src/pyaurn.egg-info
 PyAURN.code-workspace
+test.py
+__pycache__

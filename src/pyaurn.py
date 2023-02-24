@@ -5,6 +5,7 @@ import pandas as pd
 import pyreadr
 from tqdm import tqdm
 import ssl
+import windrose
 
 def __my_hook(t):
     """Wraps tqdm instance
@@ -41,10 +42,11 @@ def __download_and_import_RData_file(url,**kwargs):
         with tqdm(unit = 'B', unit_scale = True, unit_divisor = 1024, miniters = 1, desc = f"Downloading data {site} {year}:") as t:
             filename, headers = urlretrieve(url, reporthook = __my_hook(t))
     
-    # Load the RData file into R and get the name of the new variable created
+    # Load the RData file into python variable using pyreadr
     r_obj_name = pyreadr.read_r(filename)
 
-    data = r_obj_name[list(r_obj_name)[0]]# let's check what objects we got
+    # get the first object in the list which is data
+    data = r_obj_name[list(r_obj_name)[0]]
 
     # create the dataframe
     df = pd.DataFrame(data)
@@ -96,7 +98,7 @@ def importMeta(source="aurn"):
     
     return df
 
-def importAURN(site, years):
+def importAURN(site, years,pollutant="all",hc=False,meta=False):
     """
     Function to import a specific AURN site data across selected years. 
     Provide a site code (see importMeta for dataframe of sites) as a string, and a list of years.
@@ -107,7 +109,12 @@ def importAURN(site, years):
         Site ID of the AURN station e.g. "MY1"
     years : list of int
         list of years of data to download. 
-
+    pollutant : str
+        Pollutants to import. If omitted will import all pollutants from a site. To import only NOx and NO2 for example use pollutant = ["nox", "no2"].
+    hc : bool
+        A few sites have hydrocarbon measurements available and setting hc = True will ensure hydrocarbon data are imported. The default is however not to as most users will not be interested in using hydrocarbon data and the resulting data frames are considerably larger.
+    meta : bool
+        Should meta data be returned? If True all meta information is returned.
     Returns
     ----------
     pandas.DataFrame
@@ -131,20 +138,38 @@ def importAURN(site, years):
         except HTTPError:
             errors_raised = True
             continue
-
-        df = df.set_index('date')
+        
+        ## not sure why this is here. May remove in future. 
+        # df = df.set_index('date')
 
         downloaded_data.append(df)
 
     if len(downloaded_data) == 0:
         final_dataframe = pd.DataFrame()
     else:
-        final_dataframe = pd.concat(downloaded_data)
+        if pollutant == "all" and hc == True:
+            init_df = pd.concat(downloaded_data)
+            features = ['site','code']+df.columns.drop(['site','code']).to_list()
+            final_dataframe = init_df[features]
+
+        elif pollutant == "all" and hc == False:
+            features = ['site','code','date', 'O3', 'NO', 'NO2','NOXasNO2', 'SO2', 'CO', 'PM10', 'NV10',   
+       'V10', 'PM2.5', 'NV2.5', 'V2.5','AT10', 'AP10', 'AT2.5',
+       'AP2.5','ws','wd','temp']
+            final_dataframe = pd.concat(downloaded_data)[features]
+        else:
+            features = ['site','code','date']+pollutant+['ws','wd','temp']
+            final_dataframe = pd.concat(downloaded_data)[features]
 
     if errors_raised:
         warnings.warn('Some data files were not able to be downloaded, check resulting DataFrame carefully')
     if len(final_dataframe) == 0:
         warnings.warn('Resulting DataFrame is empty')
+
+    if meta == True:
+        meta_df = importMeta()
+        final_dataframe = pd.merge(final_dataframe,meta_df,how='left',left_on='code',right_on='site_id')
+        final_dataframe = final_dataframe.drop(columns=['site_id'])
 
     return final_dataframe
 
@@ -195,7 +220,8 @@ def importUKAQ(site, years,source="aurn"):
             errors_raised = True
             continue
 
-        df = df.set_index('date')
+        ## not sure why this is here. May remove in future. 
+        # df = df.set_index('date')
 
         downloaded_data.append(df)
 
@@ -245,7 +271,8 @@ def importEurope(site,years):
             errors_raised = True
             continue
 
-        df = df.set_index('date')
+        ## not sure why this is here. May remove in future. 
+        # df = df.set_index('date')
 
         downloaded_data.append(df)
 
@@ -285,3 +312,30 @@ def timeAverage(df,avg_time="daily",statistic="mean"):
         time_df = df.groupby(pd.Grouper(freq='Y')).agg(statistic)
     return time_df
 
+def windRose(df,save=False):
+    """
+    Function to plot a wind rose from a dataframe of wind speed and direction. 
+    Uses the windrose package - https://python-windrose.github.io/windrose/index.html - Lionel Roubeyrie & Sebastien Celles. 
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        dataframe containing wind speed and direction columns.
+    save : bool
+        whether to save the plot to a file. Default is False.
+
+    Returns
+    ----------
+    matplotlib.pyplot
+        returns a matplotlib.pyplot wind rose plot.
+    """
+    ax = windrose.plot_windrose(df,kind='bar',var_name='ws',direction_name='wd',normed=True)
+    years = set([df['date'].min().strftime('%Y'),df['date'].max().strftime('%Y')])
+    # concat the years into a string
+    years = "-".join(years)
+
+    ax.set_title(f"{df['site'][0]} - {df['code'][0]} - {years} Wind Rose")
+    ax
+    if save == True:
+        fig = ax.get_figure()
+        fig.savefig(f"{df['site'][0]}_wind_rose.png")
