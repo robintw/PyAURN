@@ -121,6 +121,7 @@ def importAURN(site, years,pollutant="all",hc=False,meta=False):
         returns a pandas.DataFrame of the site data for selected years.
     """
     site = site.upper()
+    pollutant = pollutant.upper()
 
     # If a single year is passed then convert to a list with a single value
     if type(years) is int:
@@ -147,18 +148,19 @@ def importAURN(site, years,pollutant="all",hc=False,meta=False):
     if len(downloaded_data) == 0:
         final_dataframe = pd.DataFrame()
     else:
-        if pollutant == "all" and hc == True:
+        if pollutant == "ALL" and hc == True:
             init_df = pd.concat(downloaded_data)
             features = ['site','code']+df.columns.drop(['site','code']).to_list()
             final_dataframe = init_df[features]
 
-        elif pollutant == "all" and hc == False:
+        elif pollutant == "ALL" and hc == False:
             features = ['site','code','date', 'O3', 'NO', 'NO2','NOXasNO2', 'SO2', 'CO', 'PM10', 'NV10',   
        'V10', 'PM2.5', 'NV2.5', 'V2.5','AT10', 'AP10', 'AT2.5',
        'AP2.5','ws','wd','temp']
-            final_dataframe = pd.concat(downloaded_data)[features]
+            init_df = pd.concat(downloaded_data)
+            final_dataframe = init_df[init_df.columns.intersection(features)]
         else:
-            features = ['site','code','date']+pollutant+['ws','wd','temp']
+            features = ['site','code','date']+[pollutant]+['ws','wd','temp']
             final_dataframe = pd.concat(downloaded_data)[features]
 
     if errors_raised:
