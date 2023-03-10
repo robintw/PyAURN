@@ -314,7 +314,7 @@ def timeAverage(df,avg_time="daily",statistic="mean"):
         time_df = df.groupby(pd.Grouper(freq='Y')).agg(statistic)
     return time_df
 
-def windRose(df,save=False):
+def windRose(df,years,save=False):
     """
     Function to plot a wind rose from a dataframe of wind speed and direction. 
     Uses the windrose package - https://python-windrose.github.io/windrose/index.html - Lionel Roubeyrie & Sebastien Celles. 
@@ -323,6 +323,8 @@ def windRose(df,save=False):
     ----------
     df : pandas.DataFrame
         dataframe containing wind speed and direction columns.
+    years : list of int 
+        years to plot from the dataframe.
     save : bool
         whether to save the plot to a file. Default is False.
 
@@ -331,13 +333,16 @@ def windRose(df,save=False):
     matplotlib.pyplot
         returns a matplotlib.pyplot wind rose plot.
     """
+
+    ## subset the dataframe to the years of interest
+    df = df[df['date'].dt.year.isin(years)]
     ax = windrose.plot_windrose(df,kind='bar',var_name='ws',direction_name='wd',normed=True)
     years = set([df['date'].min().strftime('%Y'),df['date'].max().strftime('%Y')])
     # concat the years into a string
     years = "-".join(years)
 
-    ax.set_title(f"{df['site'][0]} - {df['code'][0]} - {years} Wind Rose")
+    ax.set_title(f"{df['site'].iloc[0]} - {df['code'].iloc[0]} - {years} Wind Rose")
     ax
     if save == True:
         fig = ax.get_figure()
-        fig.savefig(f"{df['site'][0]}_wind_rose.png")
+        fig.savefig(f"{df['site'].iloc[0]}_wind_rose.png")
