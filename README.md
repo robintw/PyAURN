@@ -36,6 +36,7 @@ The following functions are currently available in the package:
 * importUKAQ - import UK Air Quality data for a specified site, year(s), and data source.
 * importEurope - import European Air Quality data for a specified site, year(s) - WIP (final dataframe format needs widening to clean pollutants)
 * timeAverage - time average the data to a specified frequency and statistic.
+* windRose - plot a wind rose for a specified site and year(s).
 
 
 ## Future developments

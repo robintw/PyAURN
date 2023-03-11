@@ -121,6 +121,7 @@ def importAURN(site, years,pollutant="all",hc=False,meta=False):
         returns a pandas.DataFrame of the site data for selected years.
     """
     site = site.upper()
+    pollutant = pollutant.upper()
 
     # If a single year is passed then convert to a list with a single value
     if type(years) is int:
@@ -147,18 +148,19 @@ def importAURN(site, years,pollutant="all",hc=False,meta=False):
     if len(downloaded_data) == 0:
         final_dataframe = pd.DataFrame()
     else:
-        if pollutant == "all" and hc == True:
+        if pollutant == "ALL" and hc == True:
             init_df = pd.concat(downloaded_data)
             features = ['site','code']+df.columns.drop(['site','code']).to_list()
             final_dataframe = init_df[features]
 
-        elif pollutant == "all" and hc == False:
+        elif pollutant == "ALL" and hc == False:
             features = ['site','code','date', 'O3', 'NO', 'NO2','NOXasNO2', 'SO2', 'CO', 'PM10', 'NV10',   
        'V10', 'PM2.5', 'NV2.5', 'V2.5','AT10', 'AP10', 'AT2.5',
        'AP2.5','ws','wd','temp']
-            final_dataframe = pd.concat(downloaded_data)[features]
+            init_df = pd.concat(downloaded_data)
+            final_dataframe = init_df[init_df.columns.intersection(features)]
         else:
-            features = ['site','code','date']+pollutant+['ws','wd','temp']
+            features = ['site','code','date']+[pollutant]+['ws','wd','temp']
             final_dataframe = pd.concat(downloaded_data)[features]
 
     if errors_raised:
@@ -312,7 +314,7 @@ def timeAverage(df,avg_time="daily",statistic="mean"):
         time_df = df.groupby(pd.Grouper(freq='Y')).agg(statistic)
     return time_df
 
-def windRose(df,save=False):
+def windRose(df,years,save=False):
     """
     Function to plot a wind rose from a dataframe of wind speed and direction. 
     Uses the windrose package - https://python-windrose.github.io/windrose/index.html - Lionel Roubeyrie & Sebastien Celles. 
@@ -321,6 +323,8 @@ def windRose(df,save=False):
     ----------
     df : pandas.DataFrame
         dataframe containing wind speed and direction columns.
+    years : list of int 
+        years to plot from the dataframe.
     save : bool
         whether to save the plot to a file. Default is False.
 
@@ -329,13 +333,16 @@ def windRose(df,save=False):
     matplotlib.pyplot
         returns a matplotlib.pyplot wind rose plot.
     """
+
+    ## subset the dataframe to the years of interest
+    df = df[df['date'].dt.year.isin(years)]
     ax = windrose.plot_windrose(df,kind='bar',var_name='ws',direction_name='wd',normed=True)
     years = set([df['date'].min().strftime('%Y'),df['date'].max().strftime('%Y')])
     # concat the years into a string
     years = "-".join(years)
 
-    ax.set_title(f"{df['site'][0]} - {df['code'][0]} - {years} Wind Rose")
+    ax.set_title(f"{df['site'].iloc[0]} - {df['code'].iloc[0]} - {years} Wind Rose")
     ax
     if save == True:
         fig = ax.get_figure()
-        fig.savefig(f"{df['site'][0]}_wind_rose.png")
+        fig.savefig(f"{df['site'].iloc[0]}_wind_rose.png")
